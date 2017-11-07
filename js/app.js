@@ -56,5 +56,58 @@
     }
   };
 
-  // ADD YOUR CODE HERE
+  // Get movie info base on search results.
+
+  let input = $('#search');
+  let button = $('.btn-large');
+
+
+  button.click(function () {
+    console.log(input.val());
+    if (input.val() === "") {
+      alert('Not a valid input!!!');
+      return;
+    } else {
+      // console.log('Input is valid');
+    //   input.empty();
+    // }
+    // event.preventDefault();
+
+
+  // input.addEventListener('click', button);
+
+
+    let $xhr = $.getJSON(`https://omdb-api.now.sh/?s=${input.val()}`);
+    console.log('get data:', $xhr);
+
+    $xhr.done(function(data) {
+      if ($xhr.status !== 200) {
+        return;
+      } else {
+        for(let i = 0; i < data.Search.length; i++) {
+          let movieObj = {};
+
+          movieObj.id = data.Search[i].imdbID;
+          movieObj.poster = data.Search[i].Poster;
+          movieObj.title = data.Search[i].Title;
+          movieObj.year = data.Search[i].Year;
+
+          movies.push(movieObj);
+        }
+      }
+      renderMovies();
+
+    });
+
+    input.empty();
+  }
+  event.preventDefault();
+
+
+  });
+
+
+
+
+
 })();
