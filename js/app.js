@@ -58,56 +58,72 @@
 
   // Get movie info base on search results.
 
+  // Set variables.
   let input = $('#search');
   let button = $('.btn-large');
 
 
-  button.click(function () {
-    console.log(input.val());
+  // Click event set on button when user submits search query.
+  button.click(function (event) {
+    // console.log(input.val());
     if (input.val() === "") {
+      // Alert is search bar is blank and submit button is clicked.
       alert('Not a valid input!!!');
       return;
     } else {
-      // console.log('Input is valid');
-    //   input.empty();
-    // }
-    // event.preventDefault();
+      // Get request to return array of objects from database based on
+      // search query.
+      let $xhr = $.getJSON(`https://omdb-api.now.sh/?s=${input.val()}`);
+      console.log('Search bar data:', $xhr);
 
+      // Retreive data from server.  Below is a successful promise.
+      $xhr.done(function(data) {
+        if ($xhr.status !== 200) {
+          return;
+        } else {
+          // Loop over data returned from server, and assign Object keys from
+          // each movie with the data needed, and push to new Object to be
+          // rendered on screen.
+          for (let i = 0; i < data.Search.length; i++) {
+            let movieObj = {};
 
-  // input.addEventListener('click', button);
+            movieObj.id = data.Search[i].imdbID;
+            movieObj.poster = data.Search[i].Poster;
+            movieObj.title = data.Search[i].Title;
+            movieObj.year = data.Search[i].Year;
 
+            // Retreive movie plot data from server to update modal.
+            let $xhr = $.getJSON(`https://omdb-api.now.sh/?i=${data.Search[i].imdbID}&plot=full`);
+            console.log('Movie ID returned: ', $xhr);
 
-    let $xhr = $.getJSON(`https://omdb-api.now.sh/?s=${input.val()}`);
-    console.log('get data:', $xhr);
+            $xhr.done(function(data2) {
+              // The plot text comes from data2, which was returned from the
+              // get request on line 96.
+              movieObj.plot = data2.Plot;
+              // console.log(movieObj.plot);
+            });
+            console.log('Movie obj w plot: ', movieObj);
 
-    $xhr.done(function(data) {
-      if ($xhr.status !== 200) {
-        return;
-      } else {
-        for(let i = 0; i < data.Search.length; i++) {
-          let movieObj = {};
-
-          movieObj.id = data.Search[i].imdbID;
-          movieObj.poster = data.Search[i].Poster;
-          movieObj.title = data.Search[i].Title;
-          movieObj.year = data.Search[i].Year;
-
-          movies.push(movieObj);
+            movies.push(movieObj);
+          }
         }
-      }
-      renderMovies();
+        renderMovies();
+      });
+    
+      // Alert if there is a failed promise
+      $xhr.fail(function(err) {
+        alert(err);
+      });
 
-    });
+    }
 
-    input.empty();
-  }
-  event.preventDefault();
+    // Clear search bar after response from server.
+    input.val('');
 
+    // Prevent default behavior, i.e., prevent other event handlers from
+    // executing after .click is fired.
+    event.preventDefault();
 
   });
-
-
-
-
 
 })();
