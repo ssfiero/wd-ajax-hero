@@ -101,15 +101,18 @@
               // get request on line 96.
               movieObj.plot = data2.Plot;
               // console.log(movieObj.plot);
+              // Invoke renderMovies inside this function in order to have the
+              // plot populated in the modulo.
+              renderMovies();
             });
             console.log('Movie obj w plot: ', movieObj);
 
             movies.push(movieObj);
           }
         }
-        renderMovies();
+
       });
-    
+
       // Alert if there is a failed promise
       $xhr.fail(function(err) {
         alert(err);
